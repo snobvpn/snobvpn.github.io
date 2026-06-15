@@ -6,12 +6,11 @@
     <title>SnobVPN Setup</title>
     <style>
         :root {
-            /* Премиальная палитра SnobVPN */
             --bg-base: #030303;
             --surface: rgba(22, 22, 22, 0.65);
             --surface-hover: rgba(30, 30, 30, 0.8);
             --border-glass: rgba(255, 255, 255, 0.08);
-            --accent-gold: #D4AF37; /* Шампань */
+            --accent-gold: #D4AF37;
             --accent-glow: rgba(212, 175, 55, 0.15);
             --text-main: #FFFFFF;
             --text-muted: #8E8E93;
@@ -39,7 +38,6 @@
             overflow-x: hidden;
         }
 
-        /* Эмбиентная подсветка на фоне (дорогой градиент) */
         body::before {
             content: '';
             position: absolute;
@@ -106,7 +104,6 @@
             font-weight: 400;
         }
 
-        /* Главная кнопка действия */
         .btn-primary {
             display: flex;
             align-items: center;
@@ -131,7 +128,6 @@
             box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
         }
 
-        /* Кнопка Telegram канала */
         .tg-channel-btn {
             display: flex;
             align-items: center;
@@ -158,7 +154,6 @@
             border-color: var(--accent-gold);
         }
 
-        /* Glassmorphism Карточки Приложений */
         .app-item {
             display: flex;
             align-items: center;
@@ -218,7 +213,6 @@
             gap: 12px;
         }
 
-        /* Кнопки действий (Установить / Добавить) */
         .action-add {
             display: flex;
             align-items: center;
@@ -253,18 +247,17 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
-        /* Toast уведомление */
         .toast {
             position: fixed;
             bottom: -80px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(20, 20, 20, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--accent-gold);
             color: var(--text-main);
             padding: 16px 32px;
             border-radius: 100px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 15px;
             transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             opacity: 0;
@@ -277,12 +270,6 @@
             gap: 10px;
         }
 
-        .toast::before {
-            content: '✓';
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
-
         .toast.show {
             bottom: 50px;
             opacity: 1;
@@ -293,13 +280,11 @@
 
     <div class="container">
         <div class="header">
-            <!-- Закинь красивое лого на GitHub -->
             <img src="logo.png" alt="SnobVPN" class="logo">
             <h1>SnobVPN</h1>
             <p>Premium Access</p>
         </div>
 
-        <!-- Кнопка Telegram канала -->
         <a href="https://t.me/ТВОЙ_КАНАЛ" target="_blank" class="tg-channel-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             Наш Telegram канал
@@ -308,13 +293,12 @@
         <h2 class="section-title">Активация профиля</h2>
         <p class="section-desc">Скопируйте ваш персональный ключ доступа или выберите приложение для быстрой настройки.</p>
 
-        <!-- Кнопка копирования использует старую логику, но с новым фиксом для iOS -->
         <button class="btn-primary" onclick="copyKey()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             Скопировать ключ
         </button>
 
-        <h2 class="section-title" id="os-title">Приложения для вашего устройства</h2>
+        <h2 class="section-title" id="os-title">Приложения для устройства</h2>
 
         <div id="os-ios" style="display: none;">
             <div class="app-item">
@@ -410,79 +394,88 @@
     <div id="toast" class="toast">Ключ скопирован</div>
 
     <script>
-        // ИМПОРТЫ И ЛОГИКА ИЗ СТАРОГО UTMOSTVPN БЕЗ ИЗМЕНЕНИЙ
-        var params = new URLSearchParams(window.location.search);
-        var key = "";
+        try {
+            var params = new URLSearchParams(window.location.search);
+            var key = "";
 
-        if (params.has('data')) {
-            try {
-                key = decodeURIComponent(escape(atob(params.get('data'))));
-            } catch (e) {
-                console.error("Ошибка расшифровки", e);
-                key = params.get('data'); 
+            if (params.has('data')) {
+                try {
+                    key = decodeURIComponent(escape(atob(params.get('data'))));
+                } catch (e) {
+                    key = params.get('data'); 
+                }
+            } else if (params.has('key')) {
+                key = params.get('key');
             }
-        } else if (params.has('key')) {
-            key = params.get('key');
+
+            if (key) {
+                key = key.trim();
+                var cleanKey = key.replace("/?", "?");
+                
+                if(document.getElementById('btn-streisand')) document.getElementById('btn-streisand').href = "streisand://import/" + cleanKey;
+                if(document.getElementById('btn-v2raytun-ios')) document.getElementById('btn-v2raytun-ios').href = "v2raytun://import/" + cleanKey;
+                
+                if(document.getElementById('btn-v2rayng')) document.getElementById('btn-v2rayng').href = cleanKey;
+                if(document.getElementById('btn-happ')) document.getElementById('btn-happ').href = cleanKey;
+            }
+
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                document.getElementById('os-ios').style.display = 'block';
+                document.getElementById('os-title').innerText = "Рекомендуем для iPhone / iPad:";
+            } else if (/android/i.test(userAgent)) {
+                document.getElementById('os-android').style.display = 'block';
+                document.getElementById('os-title').innerText = "Рекомендуем для Android:";
+            } else {
+                document.getElementById('os-pc').style.display = 'block';
+                document.getElementById('os-title').innerText = "Настройка для ПК:";
+            }
+        } catch (err) {
+            console.error(err);
         }
 
-        key = key.trim();
-
-        if (key) {
-            var cleanKey = key.replace("/?", "?");
+        function copyKey() {
+            if (!key) {
+                alert("Ключ не найден! Сначала выберите сервер в боте.");
+                return;
+            }
             
-            // Вставляем ссылки для iOS
-            if(document.getElementById('btn-streisand')) document.getElementById('btn-streisand').href = "streisand://import/" + cleanKey;
-            if(document.getElementById('btn-v2raytun-ios')) document.getElementById('btn-v2raytun-ios').href = "v2raytun://import/" + cleanKey;
+            // Жесткий хак для обхода защиты копирования в Telegram на iOS
+            var tempInput = document.createElement("textarea");
+            tempInput.value = key;
+            tempInput.style.position = "absolute";
+            tempInput.style.left = "-9999px";
+            tempInput.setAttribute("readonly", "");
+            document.body.appendChild(tempInput);
             
-            // Вставляем ссылки для Android (Android понимает сырые vless:// ссылки через Intent)
-            if(document.getElementById('btn-v2rayng')) document.getElementById('btn-v2rayng').href = cleanKey;
-            if(document.getElementById('btn-happ')) document.getElementById('btn-happ').href = cleanKey;
-        }
-
-        // --- УМНОЕ ОПРЕДЕЛЕНИЕ УСТРОЙСТВА ---
-        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-            // Если это Apple
-            document.getElementById('os-ios').style.display = 'block';
-            document.getElementById('os-title').innerText = "Рекомендуем для iPhone / iPad:";
-        } else if (/android/i.test(userAgent)) {
-            // Если это Android
-            document.getElementById('os-android').style.display = 'block';
-            document.getElementById('os-title').innerText = "Рекомендуем для Android:";
-        } else {
-            // Если это Компьютер (Windows, Mac, Linux)
-            document.getElementById('os-pc').style.display = 'block';
-            document.getElementById('os-title').innerText = "Рекомендуем для ПК:";
-        }
-
-        // Функция кнопки "Скопировать" (с фиксом для iOS)
-        async function copyKey() {
-            if (!key) return;
+            var successful = false;
             try {
-                await navigator.clipboard.writeText(key);
-                var toast = document.getElementById('toast');
-                toast.classList.add('show');
-                setTimeout(function() {
-                    toast.classList.remove('show');
-                }, 2000);
+                if (navigator.userAgent.match(/ipad|iphone/i)) {
+                    var range = document.createRange();
+                    range.selectNodeContents(tempInput);
+                    var selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    tempInput.setSelectionRange(0, 999999);
+                } else {
+                    tempInput.select();
+                }
+                successful = document.execCommand("copy");
             } catch (err) {
-                console.error('Ошибка копирования:', err);
-                
-                // Fallback для старых iOS
-                var tempInput = document.createElement("input");
-                tempInput.value = key;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                tempInput.setSelectionRange(0, 99999);
-                document.execCommand("copy");
-                document.body.removeChild(tempInput);
-                
+                successful = false;
+            }
+            
+            document.body.removeChild(tempInput);
+
+            if (successful) {
                 var toast = document.getElementById('toast');
                 toast.classList.add('show');
                 setTimeout(function() {
                     toast.classList.remove('show');
                 }, 2000);
+            } else {
+                alert("iOS заблокировал авто-копирование. Пожалуйста, скопируйте ключ прямо в чате бота (он отправлен текстом).");
             }
         }
     </script>
